@@ -30,13 +30,13 @@ class CodeGenerator(ABC):
 
     @staticmethod
     def generate_amount() -> int:
-        return random.randint(1, 10000)
+        return random.randint(1, 500)
 
 class BBVACodeGenerator(CodeGenerator):
 
     @staticmethod
     def generate_code() -> str:
-        return '112' + ''.join(random.choices('0123456789', k=16))
+        return '112' + ''.join(random.choices('0123456789', k=9))
 
 class UserInterface:
 
