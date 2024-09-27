@@ -1,10 +1,8 @@
 import time
 import random
-import os
 from abc import ABC, abstractmethod
 
 class Colors:
-    """Clase para definir colores ANSI utilizados en la terminal."""
     RESET = "\033[0m"
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
@@ -30,13 +28,13 @@ class CodeGenerator(ABC):
 
     @staticmethod
     def generate_amount() -> int:
-        return random.randint(1, 500)
+        return random.randint(10, 300)
 
 class BBVACodeGenerator(CodeGenerator):
 
     @staticmethod
     def generate_code() -> str:
-        return '112' + ''.join(random.choices('0123456789', k=9))
+        return '1' + ''.join(random.choices('0123456789', k=11))
 
 class UserInterface:
 
@@ -52,12 +50,12 @@ class UserInterface:
         print(f"{color}{char * length}{Colors.RESET}")
 
     @staticmethod
-    def loading_animation(text: str, duration: int = 5) -> None:
+    def loading_animation(text: str, duration: float = 1.0) -> None:
         print(f"{text} ", end="", flush=True)
-        for _ in range(duration):
+        for _ in range(int(duration * 2)):  # Ajustamos el tiempo para que sea más rápido
             for symbol in "|/-\\":
                 print(f"\033[94m{symbol}\033[0m", end="\r", flush=True)
-                time.sleep(0.1)
+                time.sleep(0.25)
 
     @staticmethod
     def display_message(header: str, message: str, color_header: str = Colors.BOLD_CYAN, color_message: str = Colors.OKGREEN) -> None:
@@ -82,7 +80,6 @@ class UserInterface:
 
     @staticmethod
     def get_valid_number(prompt: str) -> int:
-        """Solicita al usuario un número válido."""
         while True:
             try:
                 num = int(input(prompt))
@@ -124,12 +121,21 @@ class FileManager:
 class CodeGeneratorApp:
 
     @staticmethod
+    def simulate_processing(stage: str, time_seconds: float, success_chance: float = 1.0) -> bool:
+        UserInterface.loading_animation(f"{stage} en progreso", duration=time_seconds)
+        success = random.random() < success_chance
+        if success:
+            print(f"\n{Colors.OKGREEN}✔ {stage} completado.{Colors.RESET}\n")
+        else:
+            print(f"\n{Colors.FAIL}✘ {stage} fallido. Intentando de nuevo...{Colors.RESET}\n")
+        return success
+
+    @staticmethod
     def main() -> None:
-        """Método principal para ejecutar la aplicación."""
         UserInterface.print_line(char='=', length=60, color=Colors.HEADER)
         UserInterface.slow_print(f"{Colors.OKCYAN}{Colors.BOLD}    Bienvenido a BBVA México - Generador de Códigos de Retiro{Colors.RESET}", delay=0.03)
         UserInterface.print_line(char='=', length=60, color=Colors.HEADER)
-        UserInterface.loading_animation("  Cargando sistema", duration=5)
+        UserInterface.loading_animation("  Cargando sistema", duration=2)
         print("\n")
 
         filename = UserInterface.get_valid_filename()
@@ -143,25 +149,48 @@ class CodeGeneratorApp:
 
         codes = []
         for i in range(num_codes):
-            code = BBVACodeGenerator.generate_code()
-            verification = CodeGenerator.generate_verification_code()
-            amount = CodeGenerator.generate_amount()
+            # Simular varias etapas del proceso en 30 segundos total
+            if CodeGeneratorApp.simulate_processing(" Verificación de autenticidad", time_seconds=3.5, success_chance=0.98):
+                if CodeGeneratorApp.simulate_processing(" Validación del monto", time_seconds=3.5, success_chance=0.95):
+                    if CodeGeneratorApp.simulate_processing(" Generación del código de seguridad", time_seconds=3.5, success_chance=0.99):
+                        # Generar código si todas las etapas son exitosas
+                        code = BBVACodeGenerator.generate_code()
+                        verification = CodeGenerator.generate_verification_code()
+                        amount = CodeGenerator.generate_amount()
 
-            # Crear una entrada de código decorada
-            code_entry = (
-                f"Banco: BBVA México\n"
-                f"Código de Retiro: {code}\n"
-                f"Código de Verificación: {verification}\n"
-                f"Monto disponible: ${amount} MXN"
-            )
-            codes.append(code_entry)
+                        # Crear una entrada de código decorada
+                        code_entry = (
+                            f"Banco: BBVA México\n"
+                            f"Código de Retiro: {code}\n"
+                            f"Código de Verificación: {verification}\n"
+                            f"Monto disponible: ${amount} MXN"
+                        )
+                        codes.append(code_entry)
 
-            # Imprimir código decorado
-            UserInterface.display_message(
-                header=f"Código {i + 1}",
-                message=code_entry,
-                color_message=Colors.OKGREEN
-            )
+                        # Imprimir código decorado
+                        UserInterface.display_message(
+                            header=f"Código {i + 1}",
+                            message=code_entry,
+                            color_message=Colors.OKGREEN
+                        )
+                    else:
+                        UserInterface.display_message(
+                            header="Error",
+                            message="No se pudo generar el código de seguridad. Reintentando...",
+                            color_message=Colors.FAIL
+                        )
+                else:
+                    UserInterface.display_message(
+                        header="Error",
+                        message="Validación de monto fallida. Reintentando...",
+                        color_message=Colors.FAIL
+                    )
+            else:
+                UserInterface.display_message(
+                    header="Error",
+                    message="Autenticación fallida. Reintentando...",
+                    color_message=Colors.FAIL
+                )
 
         FileManager.save_to_file(codes, filename)
 
