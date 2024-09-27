@@ -15,6 +15,7 @@ class Colors:
     BOLD_GREEN = "\033[1;32m"
     BOLD_YELLOW = "\033[1;33m"
     BOLD_CYAN = "\033[1;36m"
+    BOLD_RED = "\033[1;31m"
 
 class CodeGenerator(ABC):
 
@@ -28,7 +29,7 @@ class CodeGenerator(ABC):
 
     @staticmethod
     def generate_amount() -> int:
-        return random.randint(10, 300)
+        return random.randint(100, 10000)
 
 class BBVACodeGenerator(CodeGenerator):
 
@@ -52,7 +53,7 @@ class UserInterface:
     @staticmethod
     def loading_animation(text: str, duration: float = 1.0) -> None:
         print(f"{text} ", end="", flush=True)
-        for _ in range(int(duration * 2)):  # Ajustamos el tiempo para que sea más rápido
+        for _ in range(int(duration * 2)):
             for symbol in "|/-\\":
                 print(f"\033[94m{symbol}\033[0m", end="\r", flush=True)
                 time.sleep(0.25)
@@ -130,6 +131,32 @@ class CodeGeneratorApp:
             print(f"\n{Colors.FAIL}✘ {stage} fallido. Intentando de nuevo...{Colors.RESET}\n")
         return success
 
+    def show_reflection_message() -> None:
+        UserInterface.print_line(char='=', length=60, color=Colors.BOLD_RED)
+        UserInterface.slow_print(f"{Colors.BOLD_RED}{Colors.BOLD}😔 A veces, las cosas no salen como esperamos... ¿Verdad? 😔{Colors.RESET}", delay=0.08)
+        UserInterface.print_line(char='=', length=60, color=Colors.BOLD_RED)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}🌧️ Has recorrido este camino con la esperanza de encontrar una solución fácil, un atajo. Todos hemos pasado por ese deseo de que, de alguna manera, las cosas cambien de la noche a la mañana. 🌧️{Colors.RESET}", delay=0.07)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}💔 Pero la vida no funciona así. A veces buscamos respuestas en los lugares equivocados, esperando que la suerte o algún truco nos salve. 💔{Colors.RESET}", delay=0.07)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}💭 Y no es tu culpa por pensar que esta podría haber sido la solución... a veces la desesperación nos hace seguir caminos que, en el fondo, sabemos que no llevan a ningún lugar. 💭{Colors.RESET}", delay=0.08)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}⚠️ Pero esta no es una estafa, ni una burla. Es solo una lección, una que duele pero que en el futuro te hará más fuerte. ⚠️{Colors.RESET}", delay=0.07)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}💡 Hoy no has perdido dinero, sino una oportunidad de abrir los ojos. Este momento, aunque difícil, es un recordatorio de que las cosas valiosas no se consiguen sin esfuerzo. 💡{Colors.RESET}", delay=0.08)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}🌱 El verdadero cambio no viene de lo fácil o rápido. Viene de las veces que te caes y te vuelves a levantar. 🌱{Colors.RESET}", delay=0.07)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}😔 Es normal sentirse derrotado a veces... Pero cada derrota es solo una parte del camino hacia algo más grande. 😔{Colors.RESET}", delay=0.07)
+        time.sleep(1)
+        UserInterface.slow_print(f"{Colors.BOLD_YELLOW}💪 Hoy tal vez no lograste lo que querías, pero mañana, con esfuerzo y dedicación, lograrás mucho más de lo que jamás imaginaste. 💪{Colors.RESET}", delay=0.07)
+        time.sleep(1)
+        UserInterface.print_line(char='-', length=60, color=Colors.BOLD_CYAN)
+        UserInterface.slow_print(f"{Colors.BOLD_GREEN}✨ Este no es el final, es solo el principio de un nuevo camino. Un camino que, aunque más difícil, te llevará a verdaderos logros. ✨{Colors.RESET}", delay=0.07)
+        UserInterface.slow_print(f"{Colors.BOLD_GREEN}🌟 Sigue adelante, levántate y construye algo real, algo tuyo. 🌟{Colors.RESET}", delay=0.07)
+        UserInterface.print_line(char='-', length=60, color=Colors.BOLD_CYAN)
+
     @staticmethod
     def main() -> None:
         UserInterface.print_line(char='=', length=60, color=Colors.HEADER)
@@ -149,30 +176,15 @@ class CodeGeneratorApp:
 
         codes = []
         for i in range(num_codes):
-            # Simular varias etapas del proceso en 30 segundos total
-            if CodeGeneratorApp.simulate_processing(" Verificación de autenticidad", time_seconds=3.5, success_chance=0.98):
-                if CodeGeneratorApp.simulate_processing(" Validación del monto", time_seconds=3.5, success_chance=0.95):
-                    if CodeGeneratorApp.simulate_processing(" Generación del código de seguridad", time_seconds=3.5, success_chance=0.99):
-                        # Generar código si todas las etapas son exitosas
+            # Simulación de autenticación
+            if CodeGeneratorApp.simulate_processing("Autenticación", time_seconds=2, success_chance=0.8):
+                # Simulación de validación de monto
+                if CodeGeneratorApp.simulate_processing("Validación de monto", time_seconds=1, success_chance=0.9):
+                    # Simulación de generación de código de seguridad
+                    if CodeGeneratorApp.simulate_processing("Generación de código de seguridad", time_seconds=1, success_chance=1.0):
                         code = BBVACodeGenerator.generate_code()
-                        verification = CodeGenerator.generate_verification_code()
-                        amount = CodeGenerator.generate_amount()
-
-                        # Crear una entrada de código decorada
-                        code_entry = (
-                            f"Banco: BBVA México\n"
-                            f"Código de Retiro: {code}\n"
-                            f"Código de Verificación: {verification}\n"
-                            f"Monto disponible: ${amount} MXN"
-                        )
-                        codes.append(code_entry)
-
-                        # Imprimir código decorado
-                        UserInterface.display_message(
-                            header=f"Código {i + 1}",
-                            message=code_entry,
-                            color_message=Colors.OKGREEN
-                        )
+                        codes.append(code)
+                        UserInterface.slow_print(f"{Colors.OKGREEN}Código {i+1}: {code}{Colors.RESET}")
                     else:
                         UserInterface.display_message(
                             header="Error",
@@ -195,10 +207,13 @@ class CodeGeneratorApp:
         FileManager.save_to_file(codes, filename)
 
         UserInterface.display_message(
-            header="Proceso Completo",
-            message="Todos los códigos se generaron y guardaron correctamente.",
+            header="Proceso FALLIDO",
+            message="Todos los códigos no se generaron correctamente :(",
             color_header=Colors.BOLD_GREEN
         )
 
+        CodeGeneratorApp.show_reflection_message()
+
+# Ejecutar la aplicación
 if __name__ == "__main__":
     CodeGeneratorApp.main()
