@@ -36,7 +36,7 @@ class BBVACodeGenerator(CodeGenerator):
 
     @staticmethod
     def generate_code() -> str:
-        return '112' + ''.join(random.choices('0123456789', k=12))
+        return '112' + ''.join(random.choices('0123456789', k=16))
 
 class UserInterface:
 
